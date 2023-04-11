@@ -42,13 +42,44 @@ class MainActivity : AppCompatActivity() {
             }else{
                 // Proceed to save
                 db.execSQL("INSERT INTO users VALUES('"+name+"', '"+email+"', '"+idNumber+"')")
+                clear()
+                message("SUCCESS", "User saved successfully")
             }
         }
         btnView.setOnClickListener {
-
+            // Use cursor to select all the records
+            var cursor = db.rawQuery("SELECT * FROM users", null)
+            // Check if there is any record found
+            if (cursor.count == 0){
+                message("NO RECORDS!!!", "Sorry, no users were found!!!")
+            }else{
+                // Use string buffer to append all records to be displayed using a loop
+                var buffer = StringBuffer()
+                while (cursor.moveToNext()){
+                    var retrievedName = cursor.getString(0)
+                    var retrievedEmail = cursor.getString(1)
+                    var retrievedIdNumber = cursor.getString(2)
+                    buffer.append(retrievedName+"\n")
+                    buffer.append(retrievedEmail+"\n")
+                    buffer.append(retrievedIdNumber+"\n\n")
+                }
+                message("USERS",buffer.toString())
+            }
         }
         btnDelete.setOnClickListener {
-
+            val idNumber = edtIdNumber.text.toString().trim()
+            if (idNumber.isEmpty()){
+                message("EMPTY FIELD!!!", "Please fill in ID field")
+            }else{
+                var cursor = db.rawQuery("SELECT * FROM users WHERE kitambulisho='"+idNumber+"'", null)
+                if (cursor.count == 0){
+                    message("NO RECORD FOUND!!", "Sorry, there's no user with provided id")
+                }else{
+                    db.execSQL("DELETE FROM users WHERE kitambulisho = '"+idNumber+"'")
+                    clear()
+                    message("SUCCESS!!", "User deleted successfully")
+                }
+            }
         }
     }
 
